@@ -5,7 +5,7 @@ import { DataSource } from 'core';
 import Fastify from "fastify";
 import { BlogRoutes } from 'src';
 
-const port = (process.env.APP_PORT ? Number(process.env.APP_PORT) : 8080);
+const port = process.env.APP_PORT ? Number(process.env.APP_PORT) : 8080;
 const host = process.env.APP_HOST ?? "127.0.0.1";
 
 // Function to kill process on port 8080
@@ -20,14 +20,11 @@ const killProcessOnPort = async () => {
 
             if (pid) {
                 execSync(`taskkill /PID ${pid} /F`);
-                console.log(`✅ Process on port ${port} killed successfully.`);
             }
         } else {
-            execSync(`lsof -ti:${8080} | xargs kill -9`);
-            console.log(`✅ Process on port ${port} killed successfully.`);
+            execSync(`lsof -ti:${port} | xargs kill -9`);
         }
     } catch (error) {
-        console.log(`⚠️ No process found on port ${port}, or failed to kill.`);
     }
 };
 
@@ -64,7 +61,7 @@ const start = async () => {
 
 start()
     .then(() =>
-        console.log(`✅ Server started on http://${host}:${port}`)
+        console.log(`Server started on http://${host}:${port}`)
     )
     .catch(err => {
         fastify.log.error(err);

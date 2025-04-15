@@ -1,4 +1,4 @@
-import { Article, ArticleRepository, ArticleTagRepository, CategoryRepository, Comment, CommentRepository, TagRepository, UserRepository } from "core";
+import { Article, ArticleRepository, CategoryRepository, Comment, CommentRepository, TagRepository, UserRepository } from "core";
 import { FindOptionsWhere, In } from "typeorm";
 import { PostArticleDto, PostCommentDto, UpdateArticleDto } from "./article.dto";
 
@@ -33,14 +33,10 @@ export const ArticleService = {
             where,
             relations: {
                 category: true,
-                tags: {
-                    tag: true,
-                },
+                tags: true,
                 author: true
             }
         });
-
-        const tags = (article.tags ?? []).map(articleTag => articleTag.tag);
 
         const category = article.category;
 
@@ -76,8 +72,9 @@ export const ArticleService = {
                 profileId: author.profile.id
             }
         }))
+
         return {
-            ...article, tags, category,
+            ...article, category,
             author: {
                 email: author.email,
                 avatar: author.profile.avatar,
@@ -109,9 +106,6 @@ export const ArticleService = {
         const article = ArticleRepository.create({ ...postArticle, author, category, tags: tags ?? [], slug });
         await article.save();
         article.id = Number(article.id);
-        const promises = tags.map(tag => ArticleTagRepository.save({ article, tag }));
-        await Promise.all(promises);
-
         return await this.getArticle(+article.id);
     },
 
@@ -140,27 +134,14 @@ export const ArticleService = {
      * @param putArticle - The article data to be updated.
      * @param articleId - The id of the article to be updated.
      */
-    async updateArticle({ categoryId, tags, ...putArticle }: UpdateArticleDto, articleId: number) {
+    async updateArticle(dto: UpdateArticleDto, articleId: number) {
+        const { categoryId } = dto;
+
         const category = await CategoryRepository.findOneOrFail({ where: { id: categoryId } });
         const article = await ArticleRepository.findOneOrFail({ where: { id: articleId } });
-        const tagsEntities = await TagRepository.findBy({ id: In(tags) });
-        const articleTags = await ArticleTagRepository.findBy({ article: { id: articleId } });
+        const tags = await TagRepository.findBy({ id: In(dto.tags) });
 
-        const tagsIds = tagsEntities.map(tag => tag.id);
-        const articleTagsTagsId = articleTags.map(tag => tag.tag.id);
-        const newTags = tagsEntities.filter(tag => !articleTagsTagsId.includes(tag.id));
-        const removedTags = articleTags.filter(tag => !tagsIds.includes(tag.tag.id));
-        const sameTags = articleTags.filter(tag => tagsIds.includes(tag.tag.id));
-
-        newTags.forEach(async tag => {
-            const articleTag = await ArticleTagRepository.save({ article, tag });
-            sameTags.push(articleTag);
-        })
-        removedTags.forEach(async tag => {
-            await ArticleTagRepository.delete({ article: { id: articleId }, tag: { id: tag.tag.id } });
-        })
-
-        const updated = await ArticleRepository.save({ ...article, ...putArticle, category, tags: sameTags });
+        const updated = await ArticleRepository.save({ ...article, ...dto, category, tags });
 
         return await this.getArticle(+updated.id);
     },

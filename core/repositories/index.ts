@@ -1,8 +1,7 @@
-import { Article, ArticleTag, Category, Comment, DataSource, Profile, Tag, User } from "core";
+import { Article, Category, Comment, DataSource, Profile, Tag, User } from "core";
 import { Repository } from "typeorm";
 
 export const ArticleRepository: Repository<Article> = DataSource.getRepository(Article);
-export const ArticleTagRepository: Repository<ArticleTag> = DataSource.getRepository(ArticleTag);
 export const CategoryRepository: Repository<Category> = DataSource.getRepository(Category);
 export const CommentRepository: Repository<Comment> = DataSource.getRepository(Comment);
 export const TagRepository: Repository<Tag> = DataSource.getRepository(Tag);

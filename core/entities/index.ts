@@ -1,5 +1,4 @@
 
-export * from "./article-tag.entity";
 export * from "./article.entity";
 export * from "./base.entity";
 export * from "./category.entity";

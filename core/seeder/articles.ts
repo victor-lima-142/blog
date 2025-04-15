@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Article, ArticleTag, CategoryRepository, Tag, TagRepository, UserRepository } from "core";
+import { Article, CategoryRepository, Tag, TagRepository, UserRepository } from "core";
 
 export const startArticles = async () => {
     try {
@@ -25,20 +25,13 @@ export const startArticles = async () => {
             article.category = category;
             article.author = author;
 
-            await article.save();
-
             const randomTags: Tag[] = [];
             for (let i = 0; i < 3; i++) {
                 randomTags.push(tags[Math.floor(Math.random() * tags.length)]);
             }
-            if (!!randomTags.length) {
-                randomTags.forEach(async tag => {
-                    const articleTag = new ArticleTag();
-                    articleTag.article = article;
-                    articleTag.tag = tag;
-                    await articleTag.save();
-                })
-            }
+            article.tags = randomTags;
+
+            await article.save();
         })
     } catch (error) {
         console.error(error);

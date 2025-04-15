@@ -1,5 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, type Relation } from "typeorm";
-import { ArticleTag, Category, Comment, User } from ".";
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, type Relation } from "typeorm";
+import { Category, Comment, Tag, User } from ".";
 
 @Entity({ schema: process.env.DB_MAIN_SCHEMA, name: "articles" })
 export class Article extends BaseEntity {
@@ -22,9 +22,9 @@ export class Article extends BaseEntity {
     @JoinColumn()
     category: Relation<Category>;
 
-    @OneToMany(() => ArticleTag, (articleTag) => articleTag.article)
-    @JoinColumn()
-    tags: Relation<ArticleTag[]>;
+    @ManyToMany(() => Tag, ({ articles }) => articles)
+    @JoinTable()
+    tags: Relation<Tag[]>;
 
     @OneToMany(() => Comment, (comment) => comment.article, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
     comments: Relation<Comment[]>;

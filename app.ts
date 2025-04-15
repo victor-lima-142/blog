@@ -3,7 +3,7 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { execSync } from 'child_process';
 import { DataSource } from 'core';
 import Fastify from "fastify";
-import { AuthHooks, BlogRoutes } from 'src';
+import { BlogRoutes } from 'src';
 
 const port = (process.env.APP_PORT ? Number(process.env.APP_PORT) : 8080);
 const host = process.env.APP_HOST ?? "127.0.0.1";

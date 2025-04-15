@@ -8,5 +8,5 @@ export * from "./blog/article/article.controller";
 export * from "./blog/auth/auth.controller";
 export * from "./blog/category/category.controller";
 export * from "./blog/comment/comment.controller";
-export * from "./blog/tag/tag.controller";
 export * from "./blog/profile/profile.routes";
+export * from "./blog/tag/tag.controller";

@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { CategoryRepository, ProfileRepository, TagRepository, UserRepository } from "core";
-import { crypto } from "src";
+import { Crypto } from "src";
 
 const categories = [
     "Mathematics",
@@ -151,7 +151,7 @@ const createUsersAndProfiles = async () => {
     for (let i = 1; i <= 100; i++) {
         let user = UserRepository.create({
             email: faker.internet.email(),
-            password: crypto.encrypt("@Tu40028922"),
+            password: Crypto.encrypt("@Tu40028922"),
             username: faker.internet.username(),
             followers: [],
             following: []
@@ -173,7 +173,7 @@ const createUsersAndProfiles = async () => {
 
     const user = UserRepository.create({
         email: "victoreboredo@gmail.com",
-        password: crypto.encrypt("@Tu40028922"),
+        password: Crypto.encrypt("@Tu40028922"),
         username: "victor-lima",
     });
 

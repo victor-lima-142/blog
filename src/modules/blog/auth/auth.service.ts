@@ -1,5 +1,5 @@
 import { EntityProps, Profile, ProfileRepository, User, UserRepository, UserWithoutPassword } from "core";
-import { crypto } from "src";
+import { Crypto } from "src";
 import { LoginDto, RegisterDto } from "./auth.dto";
 
 export const AuthService = {
@@ -18,7 +18,7 @@ export const AuthService = {
 
         const { password } = await UserRepository.findOneOrFail({ where: { email } });
 
-        if (crypto.decrypt(password) !== pass) {
+        if (Crypto.decrypt(password) !== pass) {
             throw new Error("Invalid password");
         }
         const user = await UserRepository.findOneOrFail({
@@ -68,7 +68,7 @@ export const AuthService = {
         let profile = new Profile();
 
         user.email = email;
-        user.password = crypto.encrypt(password);
+        user.password = Crypto.encrypt(password);
         user.username = username;
         user = await UserRepository.save(user);
 

@@ -1,14 +1,10 @@
 import * as CryptoLib from "crypto";
 
-class Crypto {
-    private readonly algorithm: string = "aes-256-cbc";
-    private key: Buffer;
+export class Crypto {
+    private static readonly algorithm: string = "aes-256-cbc";
+    private static key: Buffer = CryptoLib.createHash("sha256").update(process.env.CRYPTO_PWD_SECRET ?? "").digest();
 
-    constructor() {
-        this.key = CryptoLib.createHash("sha256").update(process.env.CRYPTO_PWD_SECRET ?? "").digest();
-    }
-
-    public encrypt(text: string): string {
+    public static encrypt(text: string): string {
         const iv = CryptoLib.randomBytes(16);
         const cipher = CryptoLib.createCipheriv(this.algorithm, this.key, iv);
         let encrypted = cipher.update(text, "utf8", "base64");
@@ -16,7 +12,7 @@ class Crypto {
         return `${iv.toString("base64")}:${encrypted}`;
     }
 
-    public decrypt(encryptedText: string): string {
+    public static decrypt(encryptedText: string): string {
         const parts = encryptedText.split(":");
         if (parts.length !== 2) {
             throw new Error("Invalid encrypted text format.");
@@ -29,5 +25,3 @@ class Crypto {
         return decrypted;
     }
 }
-
-export const crypto = new Crypto();

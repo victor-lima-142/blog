@@ -1,4 +1,4 @@
-import { Article, ArticleRepository, CategoryRepository, Comment, CommentRepository, TagRepository, UserRepository } from "core";
+import { Article, ArticleRepository, CategoryRepository, CommentRepository, TagRepository, UserRepository } from "core";
 import { FindOptionsWhere, In } from "typeorm";
 import { PostArticleDto, PostCommentDto, UpdateArticleDto } from "./article.dto";
 
@@ -156,12 +156,9 @@ export const ArticleService = {
     async postComment({ authorId, content }: PostCommentDto, articleId: number) {
         const article = await ArticleRepository.findOneOrFail({ where: { id: articleId } });
         const author = await UserRepository.findOneOrFail({ where: { id: authorId } });
-        const comment = new Comment();
-        comment.author = author;
-        comment.content = content;
-        comment.article = article;
-        await CommentRepository.save(comment);
-        await comment.save();
+        await CommentRepository.create({
+            author, content, article
+        }).save();
         return await this.getArticle(+articleId);
     }
 }

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { Article, CategoryRepository, Tag, TagRepository, UserRepository } from "core";
+import { Article, CategoryRepository, CommentRepository, Tag, TagRepository, UserRepository } from "core";
 
 export const startArticles = async () => {
     try {
@@ -50,4 +50,36 @@ console.log(message);
     const blockquote = `> ${faker.lorem.sentence()}\n`;
 
     return [heading, subheading, paragraph, list, codeBlock, blockquote].join('\n');
+}
+
+export const startArticleComments = async () => {
+    try {
+        const articles = await Article.find();
+        articles.forEach(async (article) => {
+            for (let i = 0; i < 3; i++) {
+                await CommentRepository.create({
+                    content: faker.lorem.sentence(260),
+                    article
+                }).save();
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const startCommentComments = async () => {
+    try {
+        const comments = await CommentRepository.find();
+        comments.forEach(async (comment) => {
+            for (let i = 0; i < 3; i++) {
+                await CommentRepository.create({
+                    content: faker.lorem.sentence(260),
+                    comment
+                }).save();
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
 }

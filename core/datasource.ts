@@ -5,7 +5,7 @@ import { Comment } from "./entities/comment.entity";
 import { Profile } from "./entities/profile.entity";
 import { Tag } from "./entities/tag.entity";
 import { User } from "./entities/user.entity";
-import { Migration1744748081297 } from "./migrations/1744748081297-migration";
+import { Migration1744918086271 } from "./migrations/1744918086271-migration";
 
 const Datasource = new TypeORMDataSource({
     type: String(process.env.DB_TYPE ?? "postgres") as "postgres" | "mysql" | "sqlite" | "mariadb",
@@ -23,7 +23,7 @@ const Datasource = new TypeORMDataSource({
         Tag,
         User
     ],
-    migrations: [Migration1744748081297]
+    migrations: [Migration1744918086271]
 })
 
 export default Datasource

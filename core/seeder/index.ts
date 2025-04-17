@@ -1,5 +1,9 @@
 import { DataSource } from "core";
-// import { startArticles } from "./articles";
+import {
+    // startArticleComments,
+    // startArticles,
+    // startCommentComments
+} from "./articles";
 // import { startBase } from "./base";
 
 async function seed() {
@@ -13,6 +17,8 @@ async function seed() {
         }
         // await startBase();
         // await startArticles();
+        // await startArticleComments();
+        // await startCommentComments();
     } catch (error) {
         errors = true;
         throw error;
@@ -20,4 +26,4 @@ async function seed() {
     return errors;
 }
 
-// seed();
+seed();

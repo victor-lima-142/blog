@@ -1,6 +1,7 @@
 import { EntityProps, Profile, ProfileRepository, User, UserRepository, UserWithoutPassword } from "core";
 import { Crypto } from "src";
 import { LoginDto, RegisterDto } from "./auth.dto";
+import { faker } from "@faker-js/faker";
 
 export const AuthService = {
     /**
@@ -64,38 +65,32 @@ export const AuthService = {
         if (existingUser) {
             throw new Error("User already exists");
         }
-        let user = new User();
-        let profile = new Profile();
 
-        user.email = email;
-        user.password = Crypto.encrypt(password);
-        user.username = username;
-        user = await UserRepository.save(user);
+        const user = await UserRepository.create({
+            email,
+            password: Crypto.encrypt(password),
+            username
+        }).save();
 
-        profile.name = name;
-        profile.birthday = birthday;
-        profile.user = user;
-        profile.avatar = "https://cdn-icons-png.flaticon.com/512/6858/6858504.png";
-        profile.cover = "https://marketplace.canva.com/EAENvp21inc/1/0/1600w/canva-simple-work-linkedin-banner-qt_TMRJF4m0.jpg";
-        profile = await ProfileRepository.save(profile);
+        const profile = await ProfileRepository.create({
+            name,
+            birthday,
+            user,
+            avatar: faker.image.avatar(),
+            cover: faker.image.url({ width: 900, height: 400 })
+        }).save();
 
         user.profile = profile;
-        user.followers = [];
-        user.following = [];
-
-        await UserRepository.save(user);
-
-        const returnUser: User = Object.create({ ...user });
-        const returnProfile: Profile = Object.create({ ...profile });
+        await user.save();
 
         try {
-            delete (returnUser as any)?.password;
-            delete (returnProfile as any)?.user;
+            delete (user as any)?.password;
+            delete (profile as any)?.user;
         } catch (error) {
             console.error(error)
         }
 
-        return { ...returnUser, ...returnProfile };
+        return { ...user, ...profile };
     }
 }
 

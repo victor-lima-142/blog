@@ -34,17 +34,16 @@ export class CommentService {
 
         const author = await UserRepository.findOneOrFail({ where: { id: Number(userId) } });
         if (!articleId && !commentId) throw new Error("Article or comment id is required");
-        const comment = new Comment();
+
+        const comment = CommentRepository.create({ author, content });
         if (articleId) {
             const article = await ArticleRepository.findOneOrFail({ where: { id: +articleId } });
             comment.article = article;
-        }
-        if (commentId) {
+        } else {
             let parentComment = await CommentRepository.findOneOrFail({ where: { id: +commentId } });
-            comment.comment = [parentComment];
+            comment.comment = parentComment;
         }
-        comment.author = author;
-        comment.content = content;
+
         return await comment.save();
     }
 

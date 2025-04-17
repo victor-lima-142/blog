@@ -6,16 +6,16 @@ export class Comment extends Base {
     @Column({ name: "content", type: "text" })
     content: string;
 
-    @ManyToOne(() => Article, (article) => article.comments, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
+    @ManyToOne(() => Article, (article) => article.comments)
     @JoinColumn()
     article!: Relation<Article>;
 
-    @ManyToOne(() => Comment, (comment) => comment.comments, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
-    comments!: Relation<Comment>;
+    @ManyToOne(() => Comment, (comment) => comment.comments)
+    comment!: Relation<Comment>;
 
-    @OneToMany(() => Comment, (comment) => comment.comments, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
+    @OneToMany(() => Comment, (comment) => comment.comment, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
     @JoinColumn()
-    comment: Relation<Comment[]>;
+    comments: Relation<Comment[]>;
 
     @ManyToOne(() => User, (user) => user.comments, { nullable: true, onDelete: "CASCADE", onUpdate: "CASCADE" })
     @JoinColumn()

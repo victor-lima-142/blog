@@ -67,7 +67,7 @@ export const TagService = {
      */
     async getTagsFromArticle(articleId: number): Promise<Tag[]> {
         const article = await ArticleRepository.findOneOrFail({ where: { id: articleId } });
-        return article.tags.map(tag => tag.tag);
+        return article.tags.map(tag => tag);
     },
 
     /**
@@ -78,6 +78,6 @@ export const TagService = {
      */
     async getArticlesFromTag(tagId: number): Promise<Article[]> {
         const tag = await TagRepository.findOneOrFail({ where: { id: tagId } });
-        return tag.articles.map(article => article.article);
+        return tag.articles.map(article => article);
     }
 }

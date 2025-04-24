@@ -26,4 +26,4 @@ async function seed() {
     return errors;
 }
 
-seed();
+// seed();

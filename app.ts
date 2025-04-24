@@ -49,6 +49,10 @@ const start = async () => {
     try {
         await killProcessOnPort();
 
+        if (DataSource.isInitialized) {
+            await DataSource.destroy();
+        }
+
         await fastify.register(BlogRoutes, { prefix: "/blog" });
 
         await DataSource.initialize();

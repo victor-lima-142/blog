@@ -34,58 +34,32 @@ export const ArticleService = {
             relations: {
                 category: true,
                 tags: true,
-                author: true
-            }
-        });
-
-        const category = article.category;
-
-        const author = await UserRepository.findOneOrFail({
-            where: {
-                id: article.author.id
-            },
-            relations: {
-                profile: true,
-            }
-        });
-
-        const commentsArr = await CommentRepository.find({
-            where: {
-                article: { id: article.id }
-            },
-            relations: {
                 author: {
-                    profile: true,
+                    profile: true
+                },
+                comments: {
+                    author: {
+                        profile: true
+                    }
                 }
-            },
-            order: { createdAt: "DESC" }
-        });
-        const comments: any[] = commentsArr.map(({ author, ...comment }) => ({
-            ...comment,
-            author: {
-                email: author.email,
-                avatar: author.profile.avatar,
-                cover: author.profile.cover,
-                name: author.profile.name,
-                username: author.username,
-                id: author.id,
-                profileId: author.profile.id
             }
-        }))
+        });
+        try {
+            delete (article as any).author.password;
+        } catch {
+            console.log("Don't exclude password");
+        }
 
-        return {
-            ...article, category,
-            author: {
-                email: author.email,
-                avatar: author.profile.avatar,
-                cover: author.profile.cover,
-                name: author.profile.name,
-                username: author.username,
-                id: author.id,
-                profileId: author.profile.id
-            },
-            comments
-        };
+        article.comments = article.comments.map(comment => {
+            try {
+                delete (comment as any).author.password;
+            } catch {
+                console.log("Don't exclude password");
+            }
+            return comment;
+        })
+
+        return article;
     },
 
 

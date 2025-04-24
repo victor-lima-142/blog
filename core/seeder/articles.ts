@@ -57,9 +57,11 @@ export const startArticleComments = async () => {
         const articles = await Article.find();
         articles.forEach(async (article) => {
             for (let i = 0; i < 3; i++) {
+                const author = await UserRepository.findOneOrFail({ where: { id: Math.floor(Math.random() * 100) } });
                 await CommentRepository.create({
                     content: faker.lorem.sentence(260),
-                    article
+                    article,
+                    author
                 }).save();
             }
         });
@@ -73,9 +75,11 @@ export const startCommentComments = async () => {
         const comments = await CommentRepository.find();
         comments.forEach(async (comment) => {
             for (let i = 0; i < 3; i++) {
+                const author = await UserRepository.findOneOrFail({ where: { id: Math.floor(Math.random() * 100) } });
                 await CommentRepository.create({
                     content: faker.lorem.sentence(260),
-                    comment
+                    comment,
+                    author
                 }).save();
             }
         });

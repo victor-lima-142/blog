@@ -1,7 +1,7 @@
-import { EntityProps, Profile, ProfileRepository, User, UserRepository, UserWithoutPassword } from "core";
+import { faker } from "@faker-js/faker";
+import { EntityProps, Profile, ProfileRepository, UserRepository, UserWithoutPassword } from "core";
 import { Crypto } from "src";
 import { LoginDto, RegisterDto } from "./auth.dto";
-import { faker } from "@faker-js/faker";
 
 export const AuthService = {
     /**
@@ -31,17 +31,15 @@ export const AuthService = {
                 profile: true,
             }
         });
-        const returnUser: User = Object.create({ ...user });
-        const returnProfile: Profile = Object.create({ ...user.profile });
 
         try {
-            delete (returnUser as any)?.password;
-            delete (returnProfile as any)?.user;
+            delete (user as any)?.password;
+            delete (user.profile as any)?.user;
         } catch (error) {
-            console.error(error);
+            console.error(error)
         }
 
-        return { ...returnUser, ...returnProfile }
+        return { ...user, ...user.profile };
     },
 
     /**
@@ -54,7 +52,7 @@ export const AuthService = {
      * @throws If the user already exists, or if there is an error during the registration process.
      */
     async register(dto: RegisterDto): Promise<AuthResponse> {
-        const { email, username, password, name, birthday } = dto;
+        const { email, username, password, name, birthday, avatar, cover } = dto;
 
         const existingUser = await UserRepository.findOne({
             where: [
@@ -76,8 +74,8 @@ export const AuthService = {
             name,
             birthday,
             user,
-            avatar: faker.image.avatar(),
-            cover: faker.image.url({ width: 900, height: 400 })
+            avatar: avatar ?? faker.image.avatar(),
+            cover: cover ?? faker.image.url({ width: 900, height: 400 })
         }).save();
 
         user.profile = profile;

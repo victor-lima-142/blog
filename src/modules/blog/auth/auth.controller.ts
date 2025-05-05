@@ -1,6 +1,8 @@
 import { Controller } from "src";
 import { AuthService } from "./auth.service";
 
+const getDateExpires = () => new Date(Date.now() + 1000 * 60 * 60 * 24 * Number(process.env.JWT_DAYS ?? 1));
+
 export const AuthController: Controller = {
     /**
      * Handles the creation of a new category.
@@ -9,13 +11,14 @@ export const AuthController: Controller = {
      * @returns A promise that resolves to the user logged.
      * @throws Error if the category could not be created.
      */
-    async login({ body: { email, password } }, reply) {
+    async login({ body }, reply) {
         try {
-            const user = await AuthService.login({ email, pass: password });
+            const user = await AuthService.login({ email: body.email, pass: body.password });
             if (!user) return reply.code(401).send({ error: 'Invalid credentials' });
             const token = await reply.jwtSign({
                 id: user.id,
-                email: user.email
+                email: user.email,
+                expires: getDateExpires()
             });
             await reply.code(200).send({ token, user });
         } catch (error) {
@@ -36,7 +39,8 @@ export const AuthController: Controller = {
             if (!!user && user?.id && user?.email) {
                 const token = await reply.jwtSign({
                     id: user.id,
-                    email: user.email
+                    email: user.email,
+                    expires: getDateExpires()
                 });
                 await reply.code(201).send({ ...user, token, message: 'User registered successfully' });
             }

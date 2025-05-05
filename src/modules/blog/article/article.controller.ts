@@ -1,5 +1,5 @@
 import { Article } from "core";
-import { Controller } from "src";
+import { Controller, strIsNumber } from "src";
 import { FindOptionsWhere, In } from "typeorm";
 import { ArticleService } from "./article.service";
 
@@ -14,15 +14,7 @@ export const ArticleController: Controller = {
      */
     async getAllArticles({ query }, reply) {
         try {
-            let where: FindOptionsWhere<Article> = {};
-            const tags = query?.tags ? Array.from(new Set(query.tags.split(','))).map(e => Number(e)) : undefined;
-            const categories = query?.categories ? Array.from(new Set(query.categories.split(','))).map(e => Number(e)) : undefined;
-            if (tags?.length) {
-                where.tags = In(tags);
-            }
-            if (categories?.length) {
-                where.category = In(categories);
-            }
+            const where = getWhereQuery(query);
             const [data, count] = await ArticleService.getAllArticles(where);
             await reply.code(200).send({ data, count });
         } catch (error) {
@@ -37,9 +29,10 @@ export const ArticleController: Controller = {
      * @returns A promise that resolves to the Article object.
      * @throws Error if the article does not exist or if an error occurs during retrieval.
      */
-    async getArticle({ params: { id } }, reply) {
+    async getArticle({ params, user }, reply) {
         try {
-            const data = await ArticleService.getArticle(+id);
+            const where = getWhereParams(params);
+            const data = await ArticleService.getArticle(where, user);
             await reply.code(200).send({ data });
         } catch (error) {
             await reply.code(400).send(error);
@@ -110,4 +103,45 @@ export const ArticleController: Controller = {
             await reply.code(400).send(error);
         }
     },
+}
+
+const getWhereParams = (params: any): FindOptionsWhere<Article> => {
+    const articleIdOrSlug = params.id;
+    console.info({ articleIdOrSlug });
+    const where: FindOptionsWhere<Article> = strIsNumber(articleIdOrSlug) ? { id: articleIdOrSlug } : { slug: articleIdOrSlug };
+    const tags = params?.tags ? Array.from(new Set(params.tags.split(','))).map(e => Number(e)) : undefined;
+    const categories = params?.categories ? Array.from(new Set(params.categories.split(','))).map(e => Number(e)) : undefined;
+    if (params.tagId) {
+        where.tags = { id: params.tagId };
+    }
+    if (params.categoryId) {
+        where.category = { id: params.categoryId };
+    }
+    if (tags?.length && !params.tagId) {
+        where.tags = In(tags);
+    }
+    if (categories?.length && !params.categoryId) {
+        where.category = In(categories);
+    }
+    console.info({ where });
+    return where;
+}
+
+const getWhereQuery = (query: any): FindOptionsWhere<Article> => {
+    const where: FindOptionsWhere<Article> = {};
+    const tags = query?.tags ? Array.from(new Set(query.tags.split(','))).map(e => Number(e)) : undefined;
+    const categories = query?.categories ? Array.from(new Set(query.categories.split(','))).map(e => Number(e)) : undefined;
+    if (query.tagId) {
+        where.tags = { id: query.tagId };
+    }
+    if (query.categoryId) {
+        where.category = { id: query.categoryId };
+    }
+    if (tags?.length && !query.tagId) {
+        where.tags = In(tags);
+    }
+    if (categories?.length && !query.categoryId) {
+        where.category = In(categories);
+    }
+    return where;
 }

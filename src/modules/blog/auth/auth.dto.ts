@@ -1,4 +1,4 @@
-import { IsDate, IsString } from "class-validator";
+import { IsDate, IsOptional, IsString } from "class-validator";
 
 export class RegisterDto {
     @IsString()
@@ -15,6 +15,14 @@ export class RegisterDto {
 
     @IsDate()
     birthday: Date;
+
+    @IsOptional()
+    @IsString()
+    avatar: string;
+
+    @IsOptional()
+    @IsString()
+    cover: string;
 }
 
 export class LoginDto {

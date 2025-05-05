@@ -1,5 +1,7 @@
 import { Article, ArticleRepository, Category, CategoryRepository } from "core";
 
+type CategorySummary = (Category & { articlesCount?: number });
+
 export class CategoryService {
     /**
      * Gets all categories and returns them along with the total count
@@ -7,7 +9,17 @@ export class CategoryService {
      * and the second element is the total count of categories
      */
     static async getAllCategories(): Promise<[Category[], number]> {
-        return await CategoryRepository.findAndCount();
+        const response: [CategorySummary[], number] = await CategoryRepository.findAndCount();
+        const mainCategories = [...response[0]];
+        if (mainCategories && !!mainCategories.length) {
+            const final = mainCategories.map(async category => {
+                const counter = await ArticleRepository.count({ where: { tags: { id: category.id } } });
+                category.articlesCount = Number(counter);
+                return category;
+            })
+            response[0] = await Promise.all(final);
+        }
+        return response satisfies [CategorySummary[], number];
     }
 
     /**

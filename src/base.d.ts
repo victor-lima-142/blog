@@ -62,7 +62,7 @@ export type Hook = {
 }
 export type Route = (fastify: FastifyInstance) => void;
 
-export type JWTPayload = { id: number, email: string };
+export type JWTPayload = { id: number, email: string, expires: Date | number };
 
 declare module "@fastify/jwt" {
     interface FastifyJWT {

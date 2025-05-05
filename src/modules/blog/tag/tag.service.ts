@@ -1,13 +1,26 @@
 import { Article, ArticleRepository, Tag, TagRepository } from "core";
 
+type TagSummary = (Tag & { articlesCount?: number });
+
 export const TagService = {
     /**
      * Gets all tags and returns them along with the total count
      * @returns a promise of a tuple, where the first element is an array of Tag objects,
      * and the second element is the total count of tags
      */
-    async getAllTags(): Promise<[Tag[], number]> {
-        return await TagRepository.findAndCount();
+
+    async getAllTags(): Promise<[TagSummary[], number]> {
+        const response: [TagSummary[], number] = await TagRepository.findAndCount();
+        const mainTags = [...response[0]];
+        if (mainTags && !!mainTags.length) {
+            const final = mainTags.map(async tag => {
+                const counter = await ArticleRepository.count({ where: { tags: { id: tag.id } } });
+                tag.articlesCount = Number(counter);
+                return tag;
+            })
+            response[0] = await Promise.all(final);
+        }
+        return response satisfies [TagSummary[], number];
     },
 
     /**

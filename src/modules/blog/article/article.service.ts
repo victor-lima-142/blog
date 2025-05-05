@@ -1,5 +1,7 @@
 import { Article, ArticleRepository, CategoryRepository, CommentRepository, TagRepository, UserRepository } from "core";
+import { JWTPayload } from "src/base";
 import { FindOptionsWhere, In } from "typeorm";
+import { ProfileService } from "../profile/profile.service";
 import { PostArticleDto, PostCommentDto, UpdateArticleDto } from "./article.dto";
 
 export const ArticleService = {
@@ -27,8 +29,7 @@ export const ArticleService = {
      * @returns A promise of the Article object
      * @throws Error if the article does not exist
      */
-    async getArticle(articleIdOrSlug: number | string) {
-        const where = typeof articleIdOrSlug === "string" ? { slug: articleIdOrSlug } : { id: articleIdOrSlug };
+    async getArticle(where: FindOptionsWhere<Article>, user?: JWTPayload) {
         const article = await ArticleRepository.findOneOrFail({
             where,
             relations: {
@@ -50,6 +51,8 @@ export const ArticleService = {
             console.log("Don't exclude password");
         }
 
+        const authorInfo = await ProfileService.getAuthorForArticlePage(article.author.id, user);
+
         article.comments = article.comments.map(comment => {
             try {
                 delete (comment as any).author.password;
@@ -59,7 +62,7 @@ export const ArticleService = {
             return comment;
         })
 
-        return article;
+        return { ...article, author: { ...authorInfo } };
     },
 
 
@@ -80,7 +83,7 @@ export const ArticleService = {
         const article = ArticleRepository.create({ ...postArticle, author, category, tags: tags ?? [], slug });
         await article.save();
         article.id = Number(article.id);
-        return await this.getArticle(+article.id);
+        return await this.getArticle({ id: +article.id });
     },
 
     /**
@@ -117,7 +120,7 @@ export const ArticleService = {
 
         const updated = await ArticleRepository.save({ ...article, ...dto, category, tags });
 
-        return await this.getArticle(+updated.id);
+        return await this.getArticle({ id: +updated.id });
     },
 
     /**
@@ -133,6 +136,6 @@ export const ArticleService = {
         await CommentRepository.create({
             author, content, article
         }).save();
-        return await this.getArticle(+articleId);
+        return await this.getArticle({ id: +articleId });
     }
 }

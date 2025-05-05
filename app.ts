@@ -3,7 +3,7 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { execSync } from 'child_process';
 import { DataSource } from 'core';
 import Fastify from "fastify";
-import { BlogRoutes } from 'src';
+import { ApiReply, ApiRequest, BaseHooks, BlogRoutes } from 'src';
 
 const port = process.env.APP_PORT ? Number(process.env.APP_PORT) : 8080;
 const host = process.env.APP_HOST ?? "127.0.0.1";
@@ -37,6 +37,7 @@ fastify.register(fastifyJwt, {
     }
 });
 
+fastify.addHook("preValidation", async (request: ApiRequest, reply: ApiReply) => BaseHooks.base(request, reply));
 
 /**
  * Starts the server.

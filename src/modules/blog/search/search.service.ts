@@ -7,7 +7,7 @@ export type SearchToken = string | number | Date;
 
 export const SearchService = {
     getSearch: async (token: SearchToken, user?: JWTPayload | User, pageToSearch?: number) => {
-        const page: number = pageToSearch ?? 1;
+        const page: number = pageToSearch ?? 0;
         const articles = await getArticles(token, page);
         const tags = await getTags(token, page);
         const categories = await getCategories(token, page);
@@ -58,6 +58,7 @@ const getProfiles = async (token: SearchToken, page: number, user?: JWTPayload |
         skip: page,
         take: 15
     });
+    if (!list.length) return [list, count];
 
     const listPromises = list.map(async profile => await ProfileService.getAuthorForArticlePage(+profile.user.id, user))
     const profiles = await Promise.all([...listPromises])
